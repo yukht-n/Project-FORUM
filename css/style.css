@@ -1,0 +1,9 @@
+/*  Alternative normalize-Version von open-props: */
+/*  @import '../node_modules/open-props/normalize.min.css'; */
+@import 'utilities';
+@import 'globals/queries';
+@import 'globals/colors';
+@import 'layout';
+@import 'navigation';
+@import 'typographie';
+@import 'components';
