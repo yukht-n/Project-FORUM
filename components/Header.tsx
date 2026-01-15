@@ -43,7 +43,7 @@ export default function Header() {
 								<LogOut />
 							</div>
 						) : (
-							<LogIn />
+							<LogIn path={pathname} />
 						)}
 					</div>
 					<Activity mode={isLoggedIn ? 'visible' : 'hidden'}>
@@ -59,7 +59,7 @@ function LogoContent() {
 	return (
 		<>
 			<TbAtom className="site-header__logo-icon" />
-			<span className="site-header__logo-text">Forum</span>
+			<span className="site-header__logo-text">F-Community</span>
 		</>
 	);
 }
