@@ -1,0 +1,80 @@
+/* Форма як картка */
+.topic-form {
+	background-color: var(--card-bg);
+	padding: 2.5rem;
+	border-radius: 16px;
+	border: 2px solid var(--border-color);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.topic-form__section {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+/* Групи полів */
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.form-group__label {
+	font-weight: 700;
+	font-size: 0.95rem;
+	color: var(--text-color);
+}
+
+.form-group__input,
+.form-group__select,
+.form-group__textarea {
+	background-color: var(--input-bg);
+	color: var(--text-color);
+	border: 2px solid var(--border-color);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	font-size: 1rem;
+	transition:
+		border-color 0.3s ease,
+		box-shadow 0.3s ease;
+}
+
+.form-group__input:focus,
+.form-group__select:focus,
+.form-group__textarea:focus {
+	outline: none;
+	border-color: var(--active-link-color);
+	box-shadow: 0 0 0 4px var(--powder-blue);
+}
+
+/* Повідомлення про стан */
+.topic-form__footer {
+	margin-top: 2rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+}
+
+.topic-form__message {
+	padding: 0.8rem 1.2rem;
+	border-radius: 8px;
+	font-size: 0.9rem;
+	font-weight: 600;
+	flex-grow: 1;
+}
+
+.topic-form__message--error {
+	background-color: #fee2e2;
+	color: #991b1b;
+	border-left: 4px solid #ef4444;
+}
+
+/* Кнопка (перевизначення твого базового стилю для кращого вигляду) */
+.topic-form button[type='submit'] {
+	padding: 1rem 2rem;
+	font-size: 1rem;
+	border-radius: 10px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}

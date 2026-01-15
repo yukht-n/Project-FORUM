@@ -11,10 +11,10 @@ body {
 .site-header,
 .site-footer {
 	padding: var(--size-fluid-3);
-	background-color: var(--header-footer-background);
+	
 }
 
-.site-header {
+/* .site-header {
 	color: var(--heading-color);
 	display: flex;
 	align-items: center;
@@ -27,11 +27,70 @@ body {
 		align-items: center;
 		text-decoration: none;
 	}
-}
+} */
 
 .site-content {
 	flex: 1;
 }
+
+
+.site-header {
+    background-color: var(--header-footer-background);
+    border-bottom: 2px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.site-header__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+
+.site-header__logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--header-color);
+    font-size: 1.5rem;
+    font-weight: 800;
+    transition: transform 0.2s ease;
+}
+
+.site-header__logo:hover {
+    transform: scale(1.02);
+}
+
+.site-header__logo-icon {
+    font-size: 2rem;
+    color: var(--active-link-color);
+}
+
+
+.site-header__right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.site-header__user-zone {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--card-bg);
+    padding: 0.25rem 0.5rem 0.25rem 1rem;
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+}
+
 
 main {
 	padding: var(--size-fluid-2);
@@ -80,4 +139,100 @@ main {
 		minmax(min(var(--grid-min-width, 15rem), 100%), 1fr)
 	);
 	gap: var(--grid-gap, 1rem);
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+form textarea {
+	background-color: var(--input-bg);
+	color: var(--text-color);
+	border: 1px solid var(--border-color);
+	border-radius: 8px;
+	padding: 1rem;
+	min-height: 100px;
+	font-family: inherit;
+	resize: vertical;
+}
+
+form button {
+	align-self: flex-end;
+	background-color: var(--button-bg);
+	color: var(--button-text);
+	border: none;
+	padding: 0.6rem 1.5rem;
+	border-radius: 6px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: opacity 0.2s ease;
+}
+
+form button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+form button:hover:not(:disabled) {
+	filter: brightness(1.1);
+}
+
+
+
+
+
+/* Компонент User */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-info__name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.user-info__avatar {
+    border-radius: 50%;
+    border: 2px solid var(--active-link-color);
+    object-fit: cover;
+}
+
+/* Кнопки авторизації */
+.btn-auth {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-auth--login {
+    background-color: var(--button-bg);
+    color: var(--button-text);
+}
+
+.btn-auth--login:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.btn-auth--logout {
+    background: transparent;
+    color: var(--meta-text);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.btn-auth--logout:hover {
+    color: var(--imperial-red);
 }

@@ -1,1 +1,4 @@
-/* Hier Komponenten importieren */
+@import './topic-teaser.css';
+@import './topic.css';
+@import './comment.css';
+@import './topic-form.css';

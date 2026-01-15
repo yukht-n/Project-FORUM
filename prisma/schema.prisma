@@ -13,55 +13,151 @@ datasource db {
   provider = "postgresql"
 }
 
-// Tabellenname PascalCase und Singular
-model Signature {
-  // ID, wenn man eine automatisch hochgezählte Integer-Zahl möchte.
-  // Achtung, Gefahr, dass jemand einfach IDs ausprobiert.
-  // Siehe auch https://www.youtube.com/watch?v=cEWlm-iXeF8
-  //  id Int @id @default(autoincrement())
-  id       String   @id @default(uuid())
-  name     String?  @db.VarChar(100) // Optionale Spalte mit ? nach dem Typ
-  email    String   @unique // Einmaliger Wert, Adresse darf und kann nicht zweimal vorkommen
-  approved Boolean  @default(false)
-  date     DateTime @default(now()) // Zeitpunkt der Erstellung des Eintrags
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          Role      @default(USER) // Role
+  sessions      Session[]
+  accounts      Account[]
+  // Connect with other Tables
+  topics        Topic[]
+  comments      Comment[]
+  votes         Vote[]
+
+  @@unique([email])
+  @@map("user")
 }
 
-model Event {
-  id          Int        @id @default(autoincrement())
-  name        String
-  description String?
-  date        DateTime
-  poster      Poster? // 1:1 Relation, muss hier (wo nicht @relation verwendet wird) optional sein
-  // 1:n Relation, Event kann nur eine Venue haben
-  venue       Venue      @relation(fields: [venueId], references: [id])
-  venueId     Int
-  // n:m Relation, Event kann mehrere Kategorien haben
-  category    Category[]
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
 }
 
-model Poster {
-  id  Int    @id @default(autoincrement())
-  url String
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade) // Angabe dient nur Prisma
-  eventId Int   @unique // Feld taucht in der Datenbank auf
+  @@index([userId])
+  @@map("account")
 }
 
-model Venue {
-  id     Int     @id @default(autoincrement())
-  name   String
-  events Event[] // 1:n Relation, Venue kann viele Events haben
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
 
+//Topics Category. Example  "Sport", "Tech". 
 model Category {
-  id    Int     @id @default(autoincrement())
-  name  String
-  // n:m Relation, Kategorie kann viele Events haben
-  event Event[]
+  id          String  @id @default(cuid())
+  name        String  @unique
+  slug        String  @unique //category/sport
+  description String?
+  topics      Topic[]
+
+  @@map("category")
 }
 
-model Todo {
-  id          Int     @id @default(autoincrement())
-  description String  @db.VarChar(200)
-  done        Boolean @default(false)
+model Topic {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique //  /topic/how-to-use-prisma
+  content   String   @db.Text // @db.Text for big texts
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Connect with author
+  authorId String?
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull) // ? onDelete: Cascade
+
+  // Connect with category
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade) // ? onDelete: Cascade
+
+  //
+  comments Comment[]
+  votes    Vote[]
+
+  @@index([authorId])
+  @@index([categoryId])
+  @@map("topic")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Author of Commentar
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Connect with Topic
+  topicId String
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  // Reply to commentar
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  @@index([authorId])
+  @@index([topicId])
+  @@index([parentId])
+  @@map("comment")
+}
+
+model Vote {
+  id   String @id @default(cuid())
+  type Int // 1 for Like, -1 for DislIke
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  topicId String
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, topicId]) // One User - One Like
+  @@map("vote")
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
 }
