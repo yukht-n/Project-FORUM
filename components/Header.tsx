@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Activity } from 'react';
 import { TbAtom } from 'react-icons/tb';
+import type { Session } from '@/auth';
 import { authClient } from '@/lib/auth-client';
 import LogIn from './Auth/LogIn';
 import LogOut from './Auth/LogOut';
@@ -15,7 +16,11 @@ export default function Header() {
 
 	const isHomePage = pathname === '/';
 
-	const { data: session, isPending } = authClient.useSession();
+	const { data: session, isPending } = authClient.useSession() as {
+		data: Session | null;
+		isPending: boolean;
+	};
+	const userRole = session?.user.role; // TypeScript cannot find the type even though such a property exists
 
 	const isLoggedIn = !!session;
 
@@ -46,7 +51,7 @@ export default function Header() {
 						)}
 					</div>
 					<Activity mode={isLoggedIn ? 'visible' : 'hidden'}>
-						<MainNavigation isLoggedIn={isLoggedIn} />
+						<MainNavigation isLoggedIn={isLoggedIn} userRole={userRole} />
 					</Activity>
 				</div>
 			</div>

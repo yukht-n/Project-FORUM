@@ -23,7 +23,9 @@ export const auth = betterAuth({
 			role: {
 				type: 'string',
 				defaultValue: 'USER',
+				input: false,
 			},
 		},
 	},
 });
+export type Session = typeof auth.$Infer.Session;

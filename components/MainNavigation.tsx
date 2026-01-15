@@ -13,18 +13,41 @@ type LinkTarget = {
 	text: string;
 	url: `/${string}`;
 	isPrivate?: boolean;
+	allowedRoles?: string[];
 };
 const linkTargets = [
-	{ text: 'Create Topic', url: '/topics/create' },
-	{ text: 'My Topics', url: '/topics/my-topics' },
+	{
+		text: 'Create Topic',
+		url: '/topics/create',
+		allowedRoles: ['USER', 'MODERATOR', 'ADMIN'],
+	},
+	{
+		text: 'My Topics',
+		url: '/topics/my-topics',
+		allowedRoles: ['USER', 'MODERATOR', 'ADMIN'],
+	},
+	{
+		text: 'Manage all Topics ',
+		url: '/topics',
+		allowedRoles: ['MODERATOR', 'ADMIN'],
+	},
+	{
+		text: 'Manage Users ',
+		url: '/admin/users',
+		allowedRoles: ['ADMIN'],
+	},
 
 	/* { text: 'Add Veranstaltung', url: '/veranstaltungen/neu', isPrivate: true }, */
 ] satisfies LinkTarget[];
 
 type Props = {
 	isLoggedIn?: boolean;
+	userRole: string | undefined;
 };
-export default function MainNavigation({ isLoggedIn = false }: Props) {
+export default function MainNavigation({
+	isLoggedIn = false,
+	userRole,
+}: Props) {
 	const [isOpen, toggleMenu, , , closeMenu] = useToggle(false);
 	const pathname = usePathname();
 
@@ -43,7 +66,7 @@ export default function MainNavigation({ isLoggedIn = false }: Props) {
 
 			{isOpen && (
 				<ul className="main-navigation__list">
-					{getMenuItems(linkTargets, pathname, isLoggedIn)}
+					{getMenuItems(linkTargets, pathname, userRole)}
 				</ul>
 			)}
 		</nav>
@@ -53,10 +76,10 @@ export default function MainNavigation({ isLoggedIn = false }: Props) {
 function getMenuItems(
 	linkTargets: LinkTarget[],
 	pathname: string,
-	isLoggedIn = false,
+	userRole: string | undefined,
 ) {
 	return linkTargets
-		.filter(({ isPrivate }) => !isPrivate || isLoggedIn)
+		.filter(({ allowedRoles }) => userRole && allowedRoles?.includes(userRole))
 		.map(({ url, text }) => {
 			const isCurrentPage = url === pathname;
 			const cssClasses = `main-navigation__link ${isCurrentPage ? 'main-navigation__link--current' : ''}`;

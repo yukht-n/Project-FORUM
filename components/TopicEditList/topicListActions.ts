@@ -8,9 +8,13 @@ import { prisma } from '@/lib/prisma';
 export async function serverDeleteTopicAction(id: string) {
 	const session = await auth.api.getSession({ headers: await headers() });
 	if (!session) throw Error('You should be logged-in');
+	const isModerator =
+		session.user.role === 'MODERATOR' || session.user.role === 'ADMIN';
+	const searchParam = isModerator ? { id } : { id, authorId: session.user.id };
+
 	try {
 		const deletedTopic = await prisma.topic.delete({
-			where: { id, authorId: session.user.id },
+			where: searchParam,
 			include: { category: { select: { name: true } } },
 		});
 

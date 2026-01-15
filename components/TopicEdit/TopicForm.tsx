@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useActionState } from 'react';
 import SubmitButton from '@/components/SubmitButton';
 import type { Category, Topic } from '@/lib/generated/prisma/client';
@@ -11,6 +12,8 @@ type Props = {
 	initialData?: Topic;
 };
 export default function TopicForm({ categories, initialData }: Props) {
+	const searchParams = useSearchParams();
+	const returnTo = searchParams.get('returnTo') || '/';
 	const actionTopic = initialData
 		? updateTopic.bind(null, initialData.id) // Or <input type="hidden" name="id" defaultValue={initialData?.id}/>
 		: createTopic;
@@ -84,7 +87,7 @@ export default function TopicForm({ categories, initialData }: Props) {
 					</div>
 				)}
 				<SubmitButton readyContent={isEdit ? 'Save' : 'Create'} />
-				{isEdit && <Link href="/dashboard/topics">Cancel</Link>}
+				{isEdit && <Link href={returnTo}>Cancel</Link>}
 			</div>
 		</form>
 	);

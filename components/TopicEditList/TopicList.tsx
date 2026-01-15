@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { startTransition, useOptimistic } from 'react';
 import type { Topic } from '@/lib/generated/prisma/client';
 import { serverDeleteTopicAction } from './topicListActions';
+import { usePathname } from 'next/navigation';
 
 type Props = { initialTopics: Topic[] };
 export default function TopicList({ initialTopics }: Props) {
@@ -10,6 +11,8 @@ export default function TopicList({ initialTopics }: Props) {
 		initialTopics,
 		optimisticReducer,
 	);
+	const pathname = usePathname();
+	console.log(pathname);
 
 	const handleDeleteTopic = async (id: string) => {
 		startTransition(async () =>
@@ -23,7 +26,10 @@ export default function TopicList({ initialTopics }: Props) {
 			{optimisticTopics.map((topic) => (
 				<li key={topic.id}>
 					<Link href={topic.slug}>{topic.title}</Link>
-					<Link href={`/topics/${topic.slug}/edit`} className="btn-edit">
+					<Link
+						href={`/topics/${topic.slug}/edit?returnTo=${pathname}`}
+						className="btn-edit"
+					>
 						🖋️
 					</Link>
 					<button type="button" onClick={() => handleDeleteTopic(topic.id)}>
