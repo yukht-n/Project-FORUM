@@ -1,8 +1,14 @@
+import { redirect } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 
-export default function LogOut() {
+type Props = { path: string };
+export default function LogOut({ path }: Props) {
+	const handleClick = async () => {
+		await authClient.signOut();
+		redirect(path);
+	};
 	return (
-		<button type="button" onClick={async () => await authClient.signOut()}>
+		<button type="button" onClick={handleClick}>
 			Abmelden
 		</button>
 	);

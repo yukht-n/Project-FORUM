@@ -2,10 +2,10 @@
 import Image from 'next/image';
 import { type FormEventHandler, startTransition, useOptimistic } from 'react';
 import z from 'zod';
+import { authClient } from '@/lib/auth-client';
 import type { Comment } from '@/lib/generated/prisma/client';
 import AddComment from './AddComment';
 import { serverAddCommentAction } from './commentActions';
-import { authClient } from '@/lib/auth-client';
 
 type Props = {
 	topicId: string;

@@ -1,8 +1,6 @@
-import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { auth } from '@/auth';
 import Comments from '@/components/Comment/Comments';
 import { prisma } from '@/lib/prisma';
 

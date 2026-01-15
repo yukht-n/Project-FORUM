@@ -1,16 +1,25 @@
 'use client';
 
+import Link from 'next/link';
 import { useActionState } from 'react';
 import SubmitButton from '@/components/SubmitButton';
-import type { Category } from '@/lib/generated/prisma/client';
-import { createTopic } from './createTopicAction';
+import type { Category, Topic } from '@/lib/generated/prisma/client';
+import { createTopic, updateTopic } from './createTopicAction';
 
-type Props = { categories: Category[] };
-export default function TopicForm({ categories }: Props) {
-	const [formState, formAction, isPending] = useActionState(createTopic, {
+type Props = {
+	categories: Category[];
+	initialData?: Topic;
+};
+export default function TopicForm({ categories, initialData }: Props) {
+	const actionTopic = initialData
+		? updateTopic.bind(null, initialData.id) // Or <input type="hidden" name="id" defaultValue={initialData?.id}/>
+		: createTopic;
+	const [formState, formAction, isPending] = useActionState(actionTopic, {
 		message: '',
 		status: 'initial',
 	});
+
+	const isEdit = !!initialData;
 
 	return (
 		<form className="topic-form" action={formAction}>
@@ -24,6 +33,7 @@ export default function TopicForm({ categories }: Props) {
 						type="text"
 						id="title"
 						name="title"
+						defaultValue={initialData?.title}
 						placeholder="What do you want to talk about?"
 						required
 					/>
@@ -35,6 +45,7 @@ export default function TopicForm({ categories }: Props) {
 					</label>
 					<select
 						className="form-group__select"
+						defaultValue={initialData?.categoryId}
 						name="categoryId"
 						id="categoryId"
 						required
@@ -56,7 +67,8 @@ export default function TopicForm({ categories }: Props) {
 						className="form-group__textarea"
 						id="content"
 						name="content"
-						rows={10}
+						rows={12}
+						defaultValue={initialData?.content}
 						placeholder="Write the details of your question..."
 						required
 					/>
@@ -71,7 +83,8 @@ export default function TopicForm({ categories }: Props) {
 						{formState.message}
 					</div>
 				)}
-				<SubmitButton />
+				<SubmitButton readyContent={isEdit ? 'Save' : 'Create'} />
+				{isEdit && <Link href="/dashboard/topics">Cancel</Link>}
 			</div>
 		</form>
 	);

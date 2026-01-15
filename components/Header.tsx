@@ -16,7 +16,6 @@ export default function Header() {
 	const isHomePage = pathname === '/';
 
 	const { data: session, isPending } = authClient.useSession();
-	console.log(session);
 
 	const isLoggedIn = !!session;
 
@@ -40,7 +39,7 @@ export default function Header() {
 						) : session ? (
 							<div className="site-header__user-zone">
 								<User {...session.user} />
-								<LogOut />
+								<LogOut path={pathname} />
 							</div>
 						) : (
 							<LogIn path={pathname} />

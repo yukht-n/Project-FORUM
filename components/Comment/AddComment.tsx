@@ -9,6 +9,7 @@ export default function AddComment({ handleAddComment, isLoggedIn }: Props) {
 		<form onSubmit={handleAddComment}>
 			<textarea
 				name="content"
+				disabled={!isLoggedIn}
 				placeholder={
 					isLoggedIn
 						? 'Write commentar...'

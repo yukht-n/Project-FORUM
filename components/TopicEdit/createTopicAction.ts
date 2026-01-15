@@ -25,7 +25,6 @@ const TopicSchema = zfd.formData(
 );
 
 export async function createTopic(formState: unknown, formData: FormData) {
-	console.log('Action');
 	const session = await auth.api.getSession({
 		headers: await headers(), // you need to pass the headers object.
 	});
@@ -73,4 +72,51 @@ export async function createTopic(formState: unknown, formData: FormData) {
 		};
 	}
 	redirect(`/topics/${slug}`);
+}
+
+export async function updateTopic(
+	id: string,
+	formState: unknown,
+	formData: FormData,
+) {
+	const session = await auth.api.getSession({
+		headers: await headers(), // you need to pass the headers object.
+	});
+	if (!session)
+		return {
+			message: `updateTopic was called without active session.`,
+			status: 'error',
+		};
+
+	const result = TopicSchema.safeParse(formData);
+
+	if (!result.success)
+		return {
+			message: `Validation failed: ${z.prettifyError(result.error)}`,
+			status: 'error',
+		};
+
+	try {
+		await prisma.topic.update({
+			where: { id },
+			data: result.data,
+		});
+
+		/* return {
+			message: 'Success',
+			status: 'success',
+			newTopicSlug: topic.slug,
+		}; */
+
+		//Cache clearing . revalidateTag ?
+		revalidatePath('/');
+		revalidatePath(`/category/${result.data.categoryId}`);
+	} catch (error) {
+		console.log(error);
+		return {
+			message: 'SQL Error',
+			status: 'error',
+		};
+	}
+	redirect(`/topics/my-topics`);
 }

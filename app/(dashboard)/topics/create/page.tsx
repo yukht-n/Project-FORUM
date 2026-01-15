@@ -1,5 +1,5 @@
+import TopicForm from '@/components/TopicEdit/TopicForm';
 import { prisma } from '@/lib/prisma';
-import TopicForm from './TopicForm';
 
 export default async function CreateTopicPage() {
 	const categories = await prisma.category.findMany({

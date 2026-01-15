@@ -16,6 +16,7 @@ type LinkTarget = {
 };
 const linkTargets = [
 	{ text: 'Create Topic', url: '/topics/create' },
+	{ text: 'My Topics', url: '/topics/my-topics' },
 
 	/* { text: 'Add Veranstaltung', url: '/veranstaltungen/neu', isPrivate: true }, */
 ] satisfies LinkTarget[];
