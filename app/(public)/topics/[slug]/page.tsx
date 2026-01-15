@@ -33,12 +33,13 @@ export default async function TopicPage({ params }: Props) {
 		notFound();
 	}
 
-	const session = await auth.api.getSession({
+	//This logic goes to the client to partially cache the page.
+	/* 	const session = await auth.api.getSession({
 		headers: await headers(), // you need to pass the headers object.
 	});
 	const activeUser = session
 		? { name: session.user.name, image: session.user.image }
-		: null;
+		: null; */
 
 	return (
 		<main className="topic">
@@ -61,7 +62,7 @@ export default async function TopicPage({ params }: Props) {
 									<Image
 										src={topic.author.image}
 										alt={`${topic.author.name} avatar`}
-										width={40} // трохи зменшив для акуратності
+										width={40}
 										height={40}
 										className="topic__avatar"
 									/>
@@ -90,7 +91,8 @@ export default async function TopicPage({ params }: Props) {
 				<Comments
 					topicId={topic.id}
 					initialComments={topic.comments}
-					author={activeUser}
+					//This logic goes to the client to partially cache the page.
+					/* author={activeUser} */
 					topicSlug={slug}
 				/>
 			</section>

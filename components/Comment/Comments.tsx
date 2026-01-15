@@ -5,11 +5,11 @@ import z from 'zod';
 import type { Comment } from '@/lib/generated/prisma/client';
 import AddComment from './AddComment';
 import { serverAddCommentAction } from './commentActions';
+import { authClient } from '@/lib/auth-client';
 
 type Props = {
 	topicId: string;
 	initialComments: CommentWithAuthor[];
-	author: Author | null;
 	parentId?: string | null;
 	topicSlug: string;
 };
@@ -22,7 +22,6 @@ type Author = {
 export default function Comments({
 	topicId,
 	initialComments,
-	author,
 	parentId = null,
 	topicSlug,
 }: Props) {
@@ -30,6 +29,10 @@ export default function Comments({
 		initialComments,
 		optimisticReducer,
 	);
+	const { data, isPending } = authClient.useSession();
+	const author = data?.user
+		? { name: data.user.name, image: data.user.image }
+		: null;
 	const handleAddComment: FormEventHandler<HTMLFormElement> = async (e) => {
 		e.preventDefault();
 		if (!author) return;
