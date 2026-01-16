@@ -1,9 +1,8 @@
 import { headers } from 'next/headers';
 import { auth } from '@/auth';
-import TopicList from '@/components/TopicEditList/TopicList';
+import TopicList from '@/components/TopicEdit/TopicList';
 import { prisma } from '@/lib/prisma';
 
-type Props = {};
 export default async function MyTopicsPage() {
 	const session = await auth.api.getSession({ headers: await headers() });
 	if (!session) return;

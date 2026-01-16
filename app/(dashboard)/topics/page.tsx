@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { auth } from '@/auth';
-import TopicList from '@/components/TopicEditList/TopicList';
+import TopicList from '@/components/TopicEdit/TopicList';
 import { prisma } from '@/lib/prisma';
 
 export default async function MyTopicsPage() {

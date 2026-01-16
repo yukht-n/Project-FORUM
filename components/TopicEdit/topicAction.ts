@@ -24,7 +24,11 @@ const TopicSchema = zfd.formData(
 	}),
 );
 
-export async function createTopic(formState: unknown, formData: FormData) {
+/* CREATE TOPIC */
+export async function serverCreateTopic(
+	formState: unknown,
+	formData: FormData,
+) {
 	const session = await auth.api.getSession({
 		headers: await headers(), // you need to pass the headers object.
 	});
@@ -74,13 +78,14 @@ export async function createTopic(formState: unknown, formData: FormData) {
 	redirect(`/topics/${slug}`);
 }
 
-export async function updateTopic(
+/* UPDATE TOPIC */
+export async function serverUpdateTopic(
 	id: string,
 	formState: unknown,
 	formData: FormData,
 ) {
 	const session = await auth.api.getSession({
-		headers: await headers(), // you need to pass the headers object.
+		headers: await headers(),
 	});
 	if (!session)
 		return {
@@ -123,4 +128,26 @@ export async function updateTopic(
 		};
 	}
 	redirect(`/topics/my-topics`);
+}
+
+export async function serverDeleteTopic(id: string) {
+	const session = await auth.api.getSession({ headers: await headers() });
+	if (!session) throw Error('You should be logged-in');
+	const isModerator =
+		session.user.role === 'MODERATOR' || session.user.role === 'ADMIN';
+	const searchParam = isModerator ? { id } : { id, authorId: session.user.id };
+
+	try {
+		const deletedTopic = await prisma.topic.delete({
+			where: searchParam,
+			include: { category: { select: { name: true } } },
+		});
+
+		revalidatePath(`category/${deletedTopic.category}`);
+		revalidatePath('/');
+		revalidatePath('/topics/my-topics');
+	} catch (error) {
+		console.log(error);
+		return false;
+	}
 }

@@ -9,6 +9,7 @@ import {
 	useState,
 } from 'react';
 import z from 'zod';
+import type { Session } from '@/auth';
 import { authClient } from '@/lib/auth-client';
 import type { Comment } from '@/lib/generated/prisma/client';
 import AddComment from './AddComment';
@@ -17,8 +18,6 @@ import {
 	serverDeleteCommentAction,
 	serverUpdateCommentAction,
 } from './commentActions';
-import type { Session } from '@/auth';
-import { wait } from '@/lib/helpers';
 
 type Props = {
 	topicId: string;

@@ -31,16 +31,9 @@ export default async function TopicPage({ params }: Props) {
 		notFound();
 	}
 
-	//This logic goes to the client to partially cache the page.
-	/* 	const session = await auth.api.getSession({
-		headers: await headers(), // you need to pass the headers object.
-	});
-	const activeUser = session
-		? { name: session.user.name, image: session.user.image }
-		: null; */
-
 	return (
 		<main className="topic">
+			{/* breadcrumbs */}
 			<nav className="topic__nav">
 				<Link href="/">Home</Link>
 				<span>/</span>
@@ -53,6 +46,7 @@ export default async function TopicPage({ params }: Props) {
 				<header>
 					<h1 className="topic__title">{topic.title}</h1>
 
+					{/* HEADER */}
 					<div className="topic__meta">
 						{topic.author ? (
 							<div className="topic__author-info">
@@ -80,21 +74,21 @@ export default async function TopicPage({ params }: Props) {
 						</time>
 					</div>
 				</header>
-
+				{/* CONTENT */}
 				<div className="topic__content">{topic.content}</div>
 			</article>
 
+			{/* COMMENTS */}
 			<section className="topic__comments-section">
 				<h3 className="topic__comments-title">
 					{topic.comments.length > 0
 						? `Comments: ${topic.comments.length}`
 						: 'Start a discussion'}
 				</h3>
+
 				<Comments
 					topicId={topic.id}
 					initialComments={topic.comments}
-					//This logic goes to the client to partially cache the page.
-					/* author={activeUser} */
 					topicSlug={slug}
 				/>
 			</section>

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { startTransition, useOptimistic } from 'react';
 import type { Topic } from '@/lib/generated/prisma/client';
-import { serverDeleteTopicAction } from './topicListActions';
+import { serverDeleteTopic } from './topicAction';
 
 type Props = { initialTopics: Topic[] };
 export default function TopicList({ initialTopics }: Props) {
@@ -17,7 +17,7 @@ export default function TopicList({ initialTopics }: Props) {
 	const handleDeleteTopic = async (id: string) => {
 		startTransition(async () => {
 			optimisticTopicsDispatch({ action: 'delete', topicId: id });
-			await serverDeleteTopicAction(id);
+			await serverDeleteTopic(id);
 		});
 	};
 

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useActionState } from 'react';
 import SubmitButton from '@/components/SubmitButton';
 import type { Category, Topic } from '@/lib/generated/prisma/client';
-import { createTopic, updateTopic } from './createTopicAction';
+import { serverCreateTopic, serverUpdateTopic } from './topicAction';
 
 type Props = {
 	categories: Category[];
@@ -15,8 +15,8 @@ export default function TopicForm({ categories, initialData }: Props) {
 	const searchParams = useSearchParams();
 	const returnTo = searchParams.get('returnTo') || '/';
 	const actionTopic = initialData
-		? updateTopic.bind(null, initialData.id) // Or <input type="hidden" name="id" defaultValue={initialData?.id}/>
-		: createTopic;
+		? serverUpdateTopic.bind(null, initialData.id) // Or <input type="hidden" name="id" defaultValue={initialData?.id}/>
+		: serverCreateTopic;
 	const [formState, formAction, isPending] = useActionState(actionTopic, {
 		message: '',
 		status: 'initial',
