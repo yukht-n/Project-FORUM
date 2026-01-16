@@ -5,6 +5,9 @@ type Props = Topic & {
 	author?: {
 		name: string;
 	} | null;
+	_count: {
+		comments: number;
+	};
 };
 export default function TopicTeaser({
 	title,
@@ -13,6 +16,7 @@ export default function TopicTeaser({
 	author,
 	createdAt,
 	updatedAt,
+	_count,
 }: Props) {
 	const cut = (text: string, length = 120) =>
 		text.length > length ? `${text.slice(0, length)}...` : text;
@@ -37,6 +41,12 @@ export default function TopicTeaser({
 							{new Date(createdAt).toLocaleDateString('de-DE')}
 						</span>
 					</div>
+					{_count.comments > 0 && (
+						<div className="topic-teaser__commentar">
+							<span className="topic-teaser__label">Comments:</span>
+							<span className="topic-teaser__value">{_count.comments}</span>
+						</div>
+					)}
 				</div>
 			</footer>
 		</article>

@@ -85,7 +85,11 @@ export default async function TopicPage({ params }: Props) {
 			</article>
 
 			<section className="topic__comments-section">
-				<h3 className="topic__comments-title">Discussion</h3>
+				<h3 className="topic__comments-title">
+					{topic.comments.length > 0
+						? `Comments: ${topic.comments.length}`
+						: 'Start a discussion'}
+				</h3>
 				<Comments
 					topicId={topic.id}
 					initialComments={topic.comments}

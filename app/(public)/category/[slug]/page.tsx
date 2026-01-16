@@ -14,6 +14,7 @@ export default async function CategoryPage({ params }: Props) {
 					author: {
 						select: { name: true, image: true },
 					},
+					_count: { select: { comments: true } },
 				},
 			},
 		},

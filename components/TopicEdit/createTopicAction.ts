@@ -96,9 +96,13 @@ export async function updateTopic(
 			status: 'error',
 		};
 
+	const isModerator =
+		session.user.role === 'MODERATOR' || session.user.role === 'ADMIN';
+	const searchParam = isModerator ? { id } : { id, authorId: session.user.id };
+
 	try {
 		await prisma.topic.update({
-			where: { id },
+			where: searchParam,
 			data: result.data,
 		});
 

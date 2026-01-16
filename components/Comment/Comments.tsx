@@ -1,11 +1,22 @@
 'use client';
 import Image from 'next/image';
-import { type FormEventHandler, startTransition, useOptimistic } from 'react';
+import {
+	type FormEventHandler,
+	startTransition,
+	useEffect,
+	useOptimistic,
+	useRef,
+	useState,
+} from 'react';
 import z from 'zod';
 import { authClient } from '@/lib/auth-client';
 import type { Comment } from '@/lib/generated/prisma/client';
 import AddComment from './AddComment';
-import { serverAddCommentAction } from './commentActions';
+import {
+	serverAddCommentAction,
+	serverDeleteCommentAction,
+	serverUpdateCommentAction,
+} from './commentActions';
 
 type Props = {
 	topicId: string;
@@ -13,11 +24,12 @@ type Props = {
 	parentId?: string | null;
 	topicSlug: string;
 };
-type CommentWithAuthor = Omit<Comment, 'authorId'> & { author: Author };
+type CommentWithAuthor = Comment & { author: Author };
 type Author = {
 	name: string;
 	image: string | null | undefined;
 };
+const CommentsContentSchema = z.string().trim().min(1).max(200);
 
 export default function Comments({
 	topicId,
@@ -25,27 +37,36 @@ export default function Comments({
 	parentId = null,
 	topicSlug,
 }: Props) {
+	const [editingId, setEditingId] = useState<string | null>(null);
 	const [optimisticComments, optimisticCommentsDispatch] = useOptimistic(
 		initialComments,
 		optimisticReducer,
 	);
-	const { data, isPending } = authClient.useSession();
+	const inputRef = useRef<HTMLTextAreaElement>(null!);
+	const { data } = authClient.useSession();
+
+	/* Users Status */
 	const author = data?.user
-		? { name: data.user.name, image: data.user.image }
+		? {
+				name: data.user.name,
+				image: data.user.image,
+				id: data.user.id,
+				role: data.user.role as string,
+			}
 		: null;
+
+	const isEditor =
+		data?.user.role === 'MODERATOR' || data?.user.role === 'ADMIN';
+
+	/*ADD COMENTAR*/
 	const handleAddComment: FormEventHandler<HTMLFormElement> = async (e) => {
 		e.preventDefault();
 		if (!author) return;
 		const commentForm = e.currentTarget;
-		const content = z
-			.string()
-			.trim()
-			.min(1)
-			.max(200)
-			.parse(commentForm.content.value);
+		const content = CommentsContentSchema.parse(commentForm.content.value);
 		commentForm.reset();
 
-		const newComment = { content, topicId, parentId };
+		const newComment = { content, topicId, parentId, authorId: author.id };
 		startTransition(() => {
 			optimisticCommentsDispatch({
 				action: 'add',
@@ -55,6 +76,36 @@ export default function Comments({
 
 		await serverAddCommentAction(newComment, topicSlug);
 	};
+
+	/*Update COMENTAR*/
+	const handleUpdateComment = async (id: string, formData: FormData) => {
+		const newContent = CommentsContentSchema.parse(formData.get('content'));
+		setEditingId(null);
+		startTransition(() => {
+			optimisticCommentsDispatch({ action: 'edit', id, newContent });
+		});
+
+		await serverUpdateCommentAction(id, newContent);
+	};
+
+	/*DELETE COMENTAR*/
+	const handleDeleteComment = async (id: string) => {
+		startTransition(() => {
+			optimisticCommentsDispatch({
+				action: 'delete',
+				deleteCommentId: id,
+			});
+		});
+
+		await serverDeleteCommentAction(id);
+	};
+
+	useEffect(() => {
+		if (editingId) {
+			inputRef.current.focus();
+		}
+	}, [editingId]);
+
 	return (
 		<div className="comments-container">
 			<AddComment handleAddComment={handleAddComment} isLoggedIn={!!author} />
@@ -83,9 +134,53 @@ export default function Comments({
 									})}
 								</span>
 							</div>
+
+							{/* Edit Buttons */}
+
+							{(isEditor || comment.authorId === author?.id) && (
+								<div>
+									<button
+										type="button"
+										onClick={() =>
+											setEditingId((value) => (value ? null : comment.id))
+										}
+									>
+										{editingId === comment.id ? '❌' : '🖋️'}
+									</button>
+
+									<button
+										type="button"
+										onClick={() => handleDeleteComment(comment.id)}
+									>
+										🗑️
+									</button>
+								</div>
+							)}
+
+							{/* END Edit Buttons */}
 						</div>
 						<div className="comment__body">
-							<p className="comment__text">{comment.content}</p>
+							{editingId === comment.id ? (
+								/* EDITING FORM */
+								<form
+									action={(FormData) =>
+										handleUpdateComment(comment.id, FormData)
+									}
+									className="comment__edit-form"
+								>
+									<textarea
+										name="content"
+										defaultValue={comment.content}
+										ref={inputRef}
+										className="comment__edit-textarea"
+									/>
+									<div className="comment__edit-buttons">
+										<button type="submit">Save</button>
+									</div>
+								</form>
+							) : (
+								<p className="comment__text">{comment.content}</p>
+							)}
 						</div>
 					</article>
 				))}
@@ -96,15 +191,19 @@ export default function Comments({
 
 function optimisticReducer(
 	comments: CommentWithAuthor[],
-	message: {
-		action: 'add';
-		newComment: {
-			content: string;
-			topicId: string;
-			parentId: string | null;
-			author: Author;
-		};
-	},
+	message:
+		| {
+				action: 'add';
+				newComment: {
+					content: string;
+					topicId: string;
+					parentId: string | null;
+					authorId: string;
+					author: Author;
+				};
+		  }
+		| { action: 'delete'; deleteCommentId: string }
+		| { action: 'edit'; id: string; newContent: string },
 ) {
 	switch (message.action) {
 		case 'add': {
@@ -119,5 +218,13 @@ function optimisticReducer(
 				...comments,
 			];
 		}
+		case 'delete':
+			return comments.filter(({ id }) => id !== message.deleteCommentId);
+		case 'edit':
+			return comments.map((comment) =>
+				comment.id === message.id
+					? { ...comment, content: message.newContent }
+					: comment,
+			);
 	}
 }

@@ -1,9 +1,9 @@
 'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { startTransition, useOptimistic } from 'react';
 import type { Topic } from '@/lib/generated/prisma/client';
 import { serverDeleteTopicAction } from './topicListActions';
-import { usePathname } from 'next/navigation';
 
 type Props = { initialTopics: Topic[] };
 export default function TopicList({ initialTopics }: Props) {
@@ -25,7 +25,7 @@ export default function TopicList({ initialTopics }: Props) {
 		<ul>
 			{optimisticTopics.map((topic) => (
 				<li key={topic.id}>
-					<Link href={topic.slug}>{topic.title}</Link>
+					<Link href={`/topics/${topic.slug}`}>{topic.title}</Link>
 					<Link
 						href={`/topics/${topic.slug}/edit?returnTo=${pathname}`}
 						className="btn-edit"

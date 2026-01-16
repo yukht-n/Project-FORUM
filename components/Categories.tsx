@@ -5,19 +5,17 @@ type Props = { categories: Category[] };
 export default function Categories({ categories }: Props) {
 	return (
 		<div className="categories">
-			{categories.map((category) => (
-				<Link key={category.id} href={`/category/${category.slug}`}>
-					<div>
-						<p>
-							{category.name}{' '}
-							<span>
-								{category._count.topics}{' '}
-								{category._count.topics === 1 ? 'topic' : 'topics'}
-							</span>{' '}
-						</p>
-					</div>
-				</Link>
-			))}
+			{categories
+				.filter((category) => category._count.topics)
+				.map((category) => (
+					<p key={category.id}>
+						<Link href={`/category/${category.slug}`}>
+							{category.name}
+							{':'}
+							<strong>{category._count.topics}</strong>{' '}
+						</Link>
+					</p>
+				))}
 		</div>
 	);
 }
