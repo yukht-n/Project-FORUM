@@ -15,10 +15,10 @@ export default function TopicList({ initialTopics }: Props) {
 	console.log(pathname);
 
 	const handleDeleteTopic = async (id: string) => {
-		startTransition(async () =>
-			optimisticTopicsDispatch({ action: 'delete', topicId: id }),
-		);
-		await serverDeleteTopicAction(id);
+		startTransition(async () => {
+			optimisticTopicsDispatch({ action: 'delete', topicId: id });
+			await serverDeleteTopicAction(id);
+		});
 	};
 
 	return (

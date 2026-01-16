@@ -18,6 +18,7 @@ import {
 	serverUpdateCommentAction,
 } from './commentActions';
 import type { Session } from '@/auth';
+import { wait } from '@/lib/helpers';
 
 type Props = {
 	topicId: string;
@@ -71,37 +72,40 @@ export default function Comments({
 		commentForm.reset();
 
 		const newComment = { content, topicId, parentId, authorId: author.id };
-		startTransition(() => {
+		startTransition(async () => {
 			optimisticCommentsDispatch({
 				action: 'add',
 				newComment: { ...newComment, author },
 			});
-		});
 
-		await serverAddCommentAction(newComment, topicSlug);
+			await serverAddCommentAction(newComment, topicSlug);
+		});
 	};
 
 	/*Update COMENTAR*/
-	const handleUpdateComment = async (id: string, formData: FormData) => {
-		const newContent = CommentsContentSchema.parse(formData.get('content'));
+	const handleUpdateComment = async () => {
+		if (!inputRef.current) return;
+		const newContent = CommentsContentSchema.parse(inputRef.current.value);
+		if (!editingId) return;
+		const id = editingId;
 		setEditingId(null);
-		startTransition(() => {
+		startTransition(async () => {
 			optimisticCommentsDispatch({ action: 'edit', id, newContent });
-		});
 
-		await serverUpdateCommentAction(id, newContent);
+			await serverUpdateCommentAction(id, newContent);
+		});
 	};
 
 	/*DELETE COMENTAR*/
 	const handleDeleteComment = async (id: string) => {
-		startTransition(() => {
+		startTransition(async () => {
 			optimisticCommentsDispatch({
 				action: 'delete',
 				deleteCommentId: id,
 			});
-		});
 
-		await serverDeleteCommentAction(id);
+			await serverDeleteCommentAction(id);
+		});
 	};
 
 	useEffect(() => {
@@ -167,9 +171,10 @@ export default function Comments({
 							{editingId === comment.id ? (
 								/* EDITING FORM */
 								<form
-									action={(FormData) =>
-										handleUpdateComment(comment.id, FormData)
-									}
+									onSubmit={(e) => {
+										e.preventDefault();
+										handleUpdateComment();
+									}}
 									className="comment__edit-form"
 								>
 									<textarea
@@ -227,7 +232,7 @@ function optimisticReducer(
 		case 'edit':
 			return comments.map((comment) =>
 				comment.id === message.id
-					? { ...comment, content: message.newContent }
+					? { ...comment, content: message.newContent, updatedAt: new Date() }
 					: comment,
 			);
 	}
