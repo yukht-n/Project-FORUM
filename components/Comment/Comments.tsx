@@ -17,6 +17,7 @@ import {
 	serverDeleteCommentAction,
 	serverUpdateCommentAction,
 } from './commentActions';
+import type { Session } from '@/auth';
 
 type Props = {
 	topicId: string;
@@ -43,7 +44,10 @@ export default function Comments({
 		optimisticReducer,
 	);
 	const inputRef = useRef<HTMLTextAreaElement>(null!);
-	const { data } = authClient.useSession();
+	const { data } = authClient.useSession() as {
+		data: Session | null;
+		isPending: boolean;
+	};
 
 	/* Users Status */
 	const author = data?.user
@@ -51,7 +55,7 @@ export default function Comments({
 				name: data.user.name,
 				image: data.user.image,
 				id: data.user.id,
-				role: data.user.role as string,
+				role: data.user.role,
 			}
 		: null;
 
