@@ -18,6 +18,7 @@ import {
 	serverDeleteCommentAction,
 	serverUpdateCommentAction,
 } from './commentActions';
+import { useRouter } from 'next/navigation';
 
 type Props = {
 	topicId: string;
@@ -48,6 +49,7 @@ export default function Comments({
 		data: Session | null;
 		isPending: boolean;
 	};
+	const router = useRouter(); // for Polling
 
 	/* Users Status */
 	const author = data?.user
@@ -106,6 +108,15 @@ export default function Comments({
 			await serverDeleteCommentAction(id);
 		});
 	};
+
+	//Polling
+	useEffect(() => {
+		const interval = setInterval(() => {
+			router.refresh();
+		}, 20000); // 20 sec
+
+		return () => clearInterval(interval);
+	}, [router]);
 
 	useEffect(() => {
 		if (editingId) {
